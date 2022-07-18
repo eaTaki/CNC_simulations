@@ -6,7 +6,8 @@ max_n = 150   # Maximum count
 max_r = 70    # Maximum rate 
 rate  = np.arange(2, max_r)
 countFR = np.arange(0,max_n)
-countLK = np.arange(0, 50, 0.1)
+countLK = np.linspace(0, 1, 300)
+#countLK = np.arange(0, 50, 0.1)
 n_trials = 100
 bins     = np.arange(0,max_n+1)-0.5
 
@@ -51,11 +52,11 @@ ax[0][1].plot(entropy_hist2, label='Neuron B')
 
 entropy_histj = np.zeros(len(rate))
 for i, (pA, pB) in enumerate(zip(probA, probB)):
-    p = pA*pB + (1-pA)*(1-pB)
-    H = -np.sum(p[p>0]*np.log2(p[p>0]))
+    p = pA*pB
+    H = -np.sum(p[p>0]*np.log2(p[p>0]/pB[p>0]))
     entropy_histj[i] = H
 
-entropy_histj = (entropy_hist + entropy_hist2) - entropy_histj
+entropy_histj = entropy_hist - entropy_histj
 
 avgS = []
 avgS.append(sum(entropy_hist)/len(entropy_hist))
@@ -81,34 +82,33 @@ entropy_distB = np.zeros(len(countLK))
 KVD = []
 for i, diff in enumerate(countLK):
     
-    sA = np.random.poisson(myCurve(0, theta_p=50+diff, c=1),size=n_trials)
-    sB = np.random.poisson(myCurve(0, theta_p=50-diff, c=1),size=n_trials)
+    sA = np.random.poisson(myCurve(0, theta_p=90, c=diff),size=n_trials)
+    sB = np.random.poisson(myCurve(0, theta_p=0, c=diff),size=n_trials)
     pA = np.histogram(sA,bins,density = True)[0]
     pB = np.histogram(sB,bins,density = True)[0]
     
-    p1 = pA*pB + (1-pA)*(1-pB)
-    p2 = 1 - p1
+    p = pA*pB
     KVD.append(np.sum(pA[(pB>0) & (pA>0)]*np.log2(pA[(pB>0) & (pA>0)]/pB[(pB>0) & (pA>0)])))
 
     Ha = -np.sum(pA[pA>0]*np.log2(pA[pA>0]))
     Hb = -np.sum(pB[pB>0]*np.log2(pB[pB>0]))
-    H1 = Ha + Hb + np.sum(p1[p1>0]*np.log2(p1[p1>0]))
-    H2 = -np.sum(p2[p2>0]*np.log2(p2[p2>0]))
+    H1 = -np.sum(p[p>0]*np.log2(p[p>0]/pB[p>0]))
     entropy_dist1[i] = H1
-    entropy_dist2[i] = H2
     entropy_distA[i] = Ha
     entropy_distB[i] = Hb
 
 ax[1][0].plot(entropy_distA, label="Neuron +")
 ax[1][0].plot(entropy_distB, label='Neuron -')
-ax[1][0].plot(entropy_dist1, label="Mutual Entropy Function")
+ax[1][0].plot(entropy_distA - entropy_dist1, label='$H(X|Y)$')
 #ax[1][1].plot(KVD, label="KVD")
 ax[1][0].set_title('Graph 3: Entropy levels on changing distributions')
 ax[1][0].set_xlabel('Stimulus LikelyHood diference')
 ax[1][0].set_ylabel('Entropy(H)')
 ax[1][0].legend(fontsize = 'x-small')
+ax[1][0].set_ylim([0, 5])
 
-ax[1][1].plot(entropy_dist2, color='g')
+
+ax[1][1].plot(entropy_dist1, color='g')
 ax[1][1].set_title('Graph 4: Joint Entropy level on changing distributions')
 ax[1][1].set_xlabel('Stimulus LikelyHood diference')
 ax[1][1].set_ylabel('Entropy(H)')
