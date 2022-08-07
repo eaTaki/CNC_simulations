@@ -13,5 +13,6 @@ Content:
 - Week 5: Simulation of different neural models(Integrate-and-fire and Fitzhugh-Nagumo models)
 - Week 6_1: Simulation of simple connection between neurons
 - Week 6_2: Simulation of simple neural network and detection edges in images filtering through the network
+- Week 7&8: In progress
 
 The important files to reed are the ones in /Projects, were you will find the jupyter(.ipynb) files and the converted pdfs
